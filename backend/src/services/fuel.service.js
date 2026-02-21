@@ -2,7 +2,9 @@ const fuelModel = require("../models/fuel.model");
 const tripModel = require("../models/trip.model");
 
 
+// ==============================
 // Create Fuel Log
+// ==============================
 const createFuelLog = async ({
     trip_id,
     liters,
@@ -10,8 +12,23 @@ const createFuelLog = async ({
     fuel_date
 }) => {
 
-    if (!trip_id || !liters || !cost) {
-        throw new Error("trip_id, liters, and cost are required");
+    // Validate required fields
+    if (!trip_id) {
+        const error = new Error("Trip ID is required");
+        error.status = 400;
+        throw error;
+    }
+
+    if (liters == null || liters <= 0) {
+        const error = new Error("Liters must be greater than 0");
+        error.status = 400;
+        throw error;
+    }
+
+    if (cost == null || cost < 0) {
+        const error = new Error("Cost must be 0 or greater");
+        error.status = 400;
+        throw error;
     }
 
 
@@ -19,20 +36,22 @@ const createFuelLog = async ({
     const trip = await tripModel.getTripById(trip_id);
 
     if (!trip) {
-        throw new Error("Trip not found");
+        const error = new Error("Trip not found");
+        error.status = 404;
+        throw error;
     }
 
 
-    // Optional FleetFlow rule:
-    // Allow fuel logs only for DISPATCHED or COMPLETED trips
-
+    // FleetFlow business rule
     if (
         trip.status !== "DISPATCHED" &&
         trip.status !== "COMPLETED"
     ) {
-        throw new Error(
+        const error = new Error(
             "Fuel log allowed only for DISPATCHED or COMPLETED trips"
         );
+        error.status = 400;
+        throw error;
     }
 
 
@@ -44,53 +63,99 @@ const createFuelLog = async ({
         fuel_date
     });
 
+    if (!log) {
+        const error = new Error("Failed to create fuel log");
+        error.status = 500;
+        throw error;
+    }
 
     return log;
 };
 
 
 
+// ==============================
 // Get All Fuel Logs
+// ==============================
 const getAllFuelLogs = async () => {
 
-    return await fuelModel.getAllFuelLogs();
+    const logs = await fuelModel.getAllFuelLogs();
+
+    return logs || [];
 };
 
 
 
+// ==============================
 // Get Fuel Logs By Trip
+// ==============================
 const getFuelLogsByTrip = async (tripId) => {
 
-    return await fuelModel.getFuelLogsByTrip(tripId);
+    if (!tripId) {
+        const error = new Error("Trip ID is required");
+        error.status = 400;
+        throw error;
+    }
+
+    const logs = await fuelModel.getFuelLogsByTrip(tripId);
+
+    return logs || [];
 };
 
 
 
+// ==============================
 // Delete Fuel Log
+// ==============================
 const deleteFuelLog = async (logId) => {
 
-    return await fuelModel.deleteFuelLog(logId);
+    if (!logId) {
+        const error = new Error("Fuel log ID is required");
+        error.status = 400;
+        throw error;
+    }
+
+    const deletedLog = await fuelModel.deleteFuelLog(logId);
+
+    if (!deletedLog) {
+        const error = new Error("Fuel log not found");
+        error.status = 404;
+        throw error;
+    }
+
+    return deletedLog;
 };
 
 
 
-// Calculate Total Fuel Cost By Vehicle
+// ==============================
+// Get Total Fuel Cost By Vehicle
+// ==============================
 const getTotalFuelCostByVehicle = async (vehicleId) => {
 
-    const result = await fuelModel.getTotalFuelCostByVehicle(vehicleId);
+    if (!vehicleId) {
+        const error = new Error("Vehicle ID is required");
+        error.status = 400;
+        throw error;
+    }
+
+    const result =
+        await fuelModel.getTotalFuelCostByVehicle(vehicleId);
 
     return {
         vehicle_id: vehicleId,
-        total_fuel_cost: result.total_fuel_cost || 0
+        total_fuel_cost:
+            result?.total_fuel_cost || 0
     };
 };
 
 
 
+// ==============================
 module.exports = {
     createFuelLog,
     getAllFuelLogs,
     getFuelLogsByTrip,
     deleteFuelLog,
     getTotalFuelCostByVehicle
-}; 
+};

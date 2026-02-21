@@ -2,8 +2,16 @@ const maintenanceModel = require("../models/maintenance.model");
 const db = require("../database/db");
 
 
+// ==============================
 // Helper: Get vehicle by ID
+// ==============================
 const getVehicleById = async (vehicleId) => {
+
+    if (!vehicleId) {
+        const error = new Error("Vehicle ID is required");
+        error.status = 400;
+        throw error;
+    }
 
     const query = `
         SELECT *
@@ -18,7 +26,10 @@ const getVehicleById = async (vehicleId) => {
 
 
 
-// Create Maintenance Log (FleetFlow critical logic)
+// ==============================
+// Create Maintenance Log
+// FleetFlow Rule: Vehicle → IN_SHOP
+// ==============================
 const createMaintenanceLog = async ({
     vehicle_id,
     description,
@@ -26,8 +37,23 @@ const createMaintenanceLog = async ({
     service_date
 }) => {
 
-    if (!vehicle_id || !description) {
-        throw new Error("vehicle_id and description are required");
+    // Validate required fields
+    if (!vehicle_id) {
+        const error = new Error("Vehicle ID is required");
+        error.status = 400;
+        throw error;
+    }
+
+    if (!description || description.trim() === "") {
+        const error = new Error("Maintenance description is required");
+        error.status = 400;
+        throw error;
+    }
+
+    if (cost != null && cost < 0) {
+        const error = new Error("Maintenance cost cannot be negative");
+        error.status = 400;
+        throw error;
     }
 
 
@@ -35,7 +61,9 @@ const createMaintenanceLog = async ({
     const vehicle = await getVehicleById(vehicle_id);
 
     if (!vehicle) {
-        throw new Error("Vehicle not found");
+        const error = new Error("Vehicle not found");
+        error.status = 404;
+        throw error;
     }
 
 
@@ -47,18 +75,31 @@ const createMaintenanceLog = async ({
         service_date
     });
 
+    if (!log) {
+        const error = new Error("Failed to create maintenance log");
+        error.status = 500;
+        throw error;
+    }
 
-    // IMPORTANT FleetFlow rule:
+
+    // FleetFlow rule:
     // Vehicle automatically becomes IN_SHOP
 
-    await db.query(
+    const updateResult = await db.query(
         `
         UPDATE vehicles
         SET status = 'IN_SHOP'
-        WHERE id = $1;
+        WHERE id = $1
+        RETURNING *;
         `,
         [vehicle_id]
     );
+
+    if (!updateResult.rows[0]) {
+        const error = new Error("Failed to update vehicle status");
+        error.status = 500;
+        throw error;
+    }
 
 
     return log;
@@ -66,58 +107,114 @@ const createMaintenanceLog = async ({
 
 
 
+// ==============================
 // Get All Maintenance Logs
+// ==============================
 const getAllMaintenanceLogs = async () => {
 
-    return await maintenanceModel.getAllMaintenanceLogs();
+    const logs =
+        await maintenanceModel.getAllMaintenanceLogs();
+
+    return logs || [];
 };
 
 
 
-// Get Logs By Vehicle
+// ==============================
+// Get Maintenance Logs By Vehicle
+// ==============================
 const getMaintenanceLogsByVehicle = async (vehicleId) => {
 
-    return await maintenanceModel.getMaintenanceLogsByVehicle(vehicleId);
+    if (!vehicleId) {
+        const error = new Error("Vehicle ID is required");
+        error.status = 400;
+        throw error;
+    }
+
+    const logs =
+        await maintenanceModel.getMaintenanceLogsByVehicle(vehicleId);
+
+    return logs || [];
 };
 
 
 
-// Complete Maintenance (Vehicle becomes AVAILABLE again)
+// ==============================
+// Complete Maintenance
+// FleetFlow Rule: Vehicle → AVAILABLE
+// ==============================
 const completeMaintenance = async (vehicleId) => {
 
-    const vehicle = await getVehicleById(vehicleId);
-
-    if (!vehicle) {
-        throw new Error("Vehicle not found");
+    if (!vehicleId) {
+        const error = new Error("Vehicle ID is required");
+        error.status = 400;
+        throw error;
     }
 
 
-    await db.query(
+    // Check vehicle exists
+    const vehicle = await getVehicleById(vehicleId);
+
+    if (!vehicle) {
+        const error = new Error("Vehicle not found");
+        error.status = 404;
+        throw error;
+    }
+
+
+    // Update vehicle status
+    const result = await db.query(
         `
         UPDATE vehicles
         SET status = 'AVAILABLE'
-        WHERE id = $1;
+        WHERE id = $1
+        RETURNING *;
         `,
         [vehicleId]
     );
 
+    if (!result.rows[0]) {
+        const error = new Error("Failed to update vehicle status");
+        error.status = 500;
+        throw error;
+    }
+
 
     return {
         message: "Vehicle maintenance completed",
-        vehicle_id: vehicleId
+        vehicle_id: vehicleId,
+        status: "AVAILABLE"
     };
 };
 
 
 
+// ==============================
 // Delete Maintenance Log
+// ==============================
 const deleteMaintenanceLog = async (logId) => {
 
-    return await maintenanceModel.deleteMaintenanceLog(logId);
+    if (!logId) {
+        const error = new Error("Maintenance log ID is required");
+        error.status = 400;
+        throw error;
+    }
+
+    const deletedLog =
+        await maintenanceModel.deleteMaintenanceLog(logId);
+
+    if (!deletedLog) {
+        const error = new Error("Maintenance log not found");
+        error.status = 404;
+        throw error;
+    }
+
+    return deletedLog;
 };
 
 
 
+// ==============================
 module.exports = {
     createMaintenanceLog,
     getAllMaintenanceLogs,
