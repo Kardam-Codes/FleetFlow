@@ -4,39 +4,40 @@ const router = express.Router();
 
 const maintenanceController = require("../controllers/maintenance.controller");
 
+const asyncHandler = require("../utils/asyncHandler");
 
 // Create Maintenance Log
 router.post(
     "/",
-    maintenanceController.createMaintenanceLog
+    asyncHandler(maintenanceController.createMaintenanceLog)
 );
 
 
 // Get All Maintenance Logs
 router.get(
     "/",
-    maintenanceController.getAllMaintenanceLogs
+    asyncHandler(maintenanceController.getAllMaintenanceLogs)
 );
 
 
 // Get Logs By Vehicle
 router.get(
     "/vehicle/:vehicleId",
-    maintenanceController.getMaintenanceLogsByVehicle
+    asyncHandler(maintenanceController.getMaintenanceLogsByVehicle)
 );
 
 
 // Complete Maintenance (Vehicle becomes AVAILABLE)
 router.patch(
     "/vehicle/:vehicleId/complete",
-    maintenanceController.completeMaintenance
+    asyncHandler(maintenanceController.completeMaintenance)
 );
 
 
 // Delete Maintenance Log
 router.delete(
     "/:id",
-    maintenanceController.deleteMaintenanceLog
+    asyncHandler(maintenanceController.deleteMaintenanceLog)
 );
 
 

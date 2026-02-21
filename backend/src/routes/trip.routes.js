@@ -4,39 +4,40 @@ const router = express.Router();
 
 const tripController = require("../controllers/trip.controller");
 
+const asyncHandler = require("../utils/asyncHandler");
 
 // Create Trip
 router.post(
     "/",
-    tripController.createTrip
+    asyncHandler(tripController.createTrip)
 );
 
 
 // Get All Trips
 router.get(
     "/",
-    tripController.getAllTrips
+    asyncHandler(tripController.getAllTrips)
 );
 
 
 // Dispatch Trip
 router.patch(
     "/:id/dispatch",
-    tripController.dispatchTrip
+    asyncHandler(tripController.dispatchTrip)
 );
 
 
 // Complete Trip
 router.patch(
     "/:id/complete",
-    tripController.completeTrip
+    asyncHandler(tripController.completeTrip)
 );
 
 
 // Delete Trip
 router.delete(
     "/:id",
-    tripController.deleteTrip
+    asyncHandler(tripController.deleteTrip)
 );
 
 

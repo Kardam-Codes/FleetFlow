@@ -4,32 +4,33 @@ const router = express.Router();
 
 const analyticsController = require("../controllers/analytics.controller");
 
+const asyncHandler = require("../utils/asyncHandler");
 
 // Fuel Efficiency (km/L)
 router.get(
     "/vehicle/:vehicleId/fuel-efficiency",
-    analyticsController.getFuelEfficiency
+    asyncHandler(analyticsController.getFuelEfficiency)
 );
 
 
 // Operational Cost (Fuel + Maintenance)
 router.get(
     "/vehicle/:vehicleId/operational-cost",
-    analyticsController.getOperationalCost
+    asyncHandler(analyticsController.getOperationalCost)
 );
 
 
 // Cost per KM
 router.get(
     "/vehicle/:vehicleId/cost-per-km",
-    analyticsController.getCostPerKm
+    asyncHandler(analyticsController.getCostPerKm)
 );
 
 
 // Vehicle ROI
 router.get(
     "/vehicle/:vehicleId/roi",
-    analyticsController.getVehicleROI
+    asyncHandler(analyticsController.getVehicleROI)
 );
 
 

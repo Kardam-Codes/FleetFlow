@@ -4,39 +4,40 @@ const router = express.Router();
 
 const fuelController = require("../controllers/fuel.controller");
 
+const asyncHandler = require("../utils/asyncHandler");
 
 // Create Fuel Log
 router.post(
     "/",
-    fuelController.createFuelLog
+    asynchandler(fuelController.createFuelLog)
 );
 
 
 // Get All Fuel Logs
 router.get(
     "/",
-    fuelController.getAllFuelLogs
+    asyncHandler(fuelController.getAllFuelLogs)
 );
 
 
 // Get Fuel Logs By Trip
 router.get(
     "/trip/:tripId",
-    fuelController.getFuelLogsByTrip
+    asyncHandler(fuelController.getFuelLogsByTrip)
 );
 
 
 // Get Total Fuel Cost By Vehicle
 router.get(
     "/vehicle/:vehicleId/total-cost",
-    fuelController.getTotalFuelCostByVehicle
+    asyncHandler(fuelController.getTotalFuelCostByVehicle)
 );
 
 
 // Delete Fuel Log
 router.delete(
     "/:id",
-    fuelController.deleteFuelLog
+    asyncHandler(fuelController.deleteFuelLog)
 );
 
 
