@@ -1,12 +1,8 @@
 const validateCreateVehicle = (req, res, next) => {
-  const { name, licensePlate, maxCapacity, acquisitionCost } = req.body;
-
-  if (!name || name.length < 2) {
-    return res.status(400).json({
-      success: false,
-      message: "Vehicle name must be at least 2 characters",
-    });
-  }
+  const name = req.body.name;
+  const licensePlate = req.body.licensePlate ?? req.body.license_plate;
+  const maxCapacity = req.body.maxCapacity ?? req.body.max_capacity;
+  const acquisitionCost = req.body.acquisitionCost ?? req.body.acquisition_cost;
 
   if (!licensePlate || licensePlate.length < 4) {
     return res.status(400).json({
@@ -29,21 +25,27 @@ const validateCreateVehicle = (req, res, next) => {
     });
   }
 
+  req.body.name = name || licensePlate;
+  req.body.licensePlate = licensePlate;
+  req.body.maxCapacity = Number(maxCapacity);
+  req.body.acquisitionCost = Number(acquisitionCost || 0);
   next();
 };
 
 const validateVehicleStatus = (req, res, next) => {
   const { status } = req.body;
 
-  const allowedStatuses = ["available", "on_trip", "in_shop", "retired"];
+  const allowedStatuses = ["AVAILABLE", "ON_TRIP", "IN_SHOP", "RETIRED"];
+  const normalizedStatus = String(status || "").toUpperCase();
 
-  if (!status || !allowedStatuses.includes(status)) {
+  if (!status || !allowedStatuses.includes(normalizedStatus)) {
     return res.status(400).json({
       success: false,
       message: "Invalid vehicle status",
     });
   }
 
+  req.body.status = normalizedStatus;
   next();
 };
 

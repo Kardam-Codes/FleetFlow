@@ -1,8 +1,28 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { theme } from "../../constants/theme";
+import { useAuth } from "../../context/AuthContext";
+
+const navItems = [
+  { to: "/dashboard", label: "Dashboard", roles: ["FLEET_MANAGER", "DISPATCHER", "SAFETY_OFFICER", "FINANCIAL_ANALYST"] },
+  { to: "/vehicles", label: "Vehicles", roles: ["FLEET_MANAGER"] },
+  { to: "/drivers", label: "Drivers", roles: ["FLEET_MANAGER", "SAFETY_OFFICER"] },
+  { to: "/trips", label: "Trips", roles: ["FLEET_MANAGER", "DISPATCHER"] },
+  { to: "/maintenance", label: "Maintenance", roles: ["FLEET_MANAGER"] },
+  { to: "/fuel", label: "Fuel Logs", roles: ["FLEET_MANAGER", "FINANCIAL_ANALYST"] },
+  { to: "/analytics", label: "Analytics", roles: ["FLEET_MANAGER", "FINANCIAL_ANALYST"] },
+];
+
+function normalizeRole(role) {
+  const normalizedRole = String(role || "").toUpperCase();
+  if (normalizedRole === "MANAGER") return "FLEET_MANAGER";
+  return normalizedRole;
+}
 
 const Sidebar = () => {
+  const { user } = useAuth();
+  const currentRole = normalizeRole(user?.role);
+
   const linkStyle = ({ isActive }) => ({
     display: "flex",
     alignItems: "center",
@@ -22,18 +42,17 @@ const Sidebar = () => {
       : "transparent",
   });
 
+  const visibleItems = navItems.filter((item) => item.roles.includes(currentRole));
+
   return (
     <div
+      className="ff-sidebar"
       style={{
-        width: "240px",
         background: theme.colors.surface,
         borderRight: `1px solid ${theme.colors.border}`,
         padding: "24px 16px",
-        display: "flex",
-        flexDirection: "column",
       }}
     >
-      {/* Logo / App Name */}
       <div
         style={{
           marginBottom: "40px",
@@ -46,26 +65,14 @@ const Sidebar = () => {
         FleetFlow
       </div>
 
-      {/* Navigation */}
       <nav style={{ display: "flex", flexDirection: "column" }}>
-        <NavLink to="/" style={linkStyle}>
-          Dashboard
-        </NavLink>
-
-        <NavLink to="/vehicles" style={linkStyle}>
-          Vehicles
-        </NavLink>
-
-        <NavLink to="/drivers" style={linkStyle}>
-          Drivers
-        </NavLink>
-
-        <NavLink to="/trips" style={linkStyle}>
-          Trips
-        </NavLink>
+        {visibleItems.map((item) => (
+          <NavLink key={item.to} to={item.to} style={linkStyle}>
+            {item.label}
+          </NavLink>
+        ))}
       </nav>
 
-      {/* Footer Section */}
       <div
         style={{
           marginTop: "auto",

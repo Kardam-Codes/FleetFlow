@@ -7,6 +7,7 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts"
+import { theme } from "../../constants/theme"
 
 export default function ROIChart({ data }) {
   return (
@@ -14,10 +15,16 @@ export default function ROIChart({ data }) {
       <h3>Vehicle ROI Comparison</h3>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="label" />
-          <YAxis />
-          <Tooltip />
+          <CartesianGrid strokeDasharray="3 3" stroke={theme.colors.border} />
+          <XAxis dataKey="label" stroke={theme.colors.textSecondary} />
+          <YAxis stroke={theme.colors.textSecondary} />
+          <Tooltip
+            contentStyle={{
+              background: theme.colors.elevated,
+              border: `1px solid ${theme.colors.border}`,
+              color: theme.colors.textPrimary,
+            }}
+          />
           <Bar
             dataKey="value"
             fill="#10b981"
@@ -32,10 +39,11 @@ export default function ROIChart({ data }) {
 
 const styles = {
   card: {
-    background: "#fff",
+    background: theme.colors.surface,
     padding: "20px",
     borderRadius: "14px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
+    border: `1px solid ${theme.colors.border}`,
     marginBottom: "40px",
+    color: theme.colors.textPrimary,
   },
 }

@@ -44,8 +44,9 @@ const createTrip = async ({
 const getAllTrips = async () => {
 
     const query = `
-        SELECT 
+        SELECT
             trips.*,
+            vehicles.license_plate AS vehicle_name,
             vehicles.license_plate,
             drivers.name AS driver_name
         FROM trips
@@ -94,6 +95,14 @@ const updateTripStatus = async (tripId, status) => {
 
 
 
+// Dispatch Trip
+const dispatchTrip = async (tripId) => {
+
+    return await updateTripStatus(tripId, "DISPATCHED");
+};
+
+
+
 // Complete Trip
 const completeTrip = async ({
     tripId,
@@ -103,7 +112,7 @@ const completeTrip = async ({
 
     const query = `
         UPDATE trips
-        SET 
+        SET
             status = 'COMPLETED',
             end_odometer = $1,
             revenue = $2
@@ -120,6 +129,14 @@ const completeTrip = async ({
     const result = await db.query(query, values);
 
     return result.rows[0];
+};
+
+
+
+// Cancel Trip
+const cancelTrip = async (tripId) => {
+
+    return await updateTripStatus(tripId, "CANCELLED");
 };
 
 
@@ -145,6 +162,8 @@ module.exports = {
     getAllTrips,
     getTripById,
     updateTripStatus,
+    dispatchTrip,
     completeTrip,
+    cancelTrip,
     deleteTrip
 };

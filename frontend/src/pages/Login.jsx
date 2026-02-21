@@ -57,6 +57,14 @@ export default function Login() {
           {loading ? "Signing in..." : "Sign In"}
         </button>
 
+        <button
+          type="button"
+          onClick={() => window.alert("Please contact your FleetFlow admin to reset your password.")}
+          style={styles.secondaryButton}
+        >
+          Forgot Password?
+        </button>
+
         <p style={styles.metaText}>
           New to FleetFlow? <Link to="/signup" style={styles.link}>Create account</Link>
         </p>
@@ -106,6 +114,14 @@ const styles = {
     color: "#ffffff",
     cursor: "pointer",
     fontWeight: 600,
+  },
+  secondaryButton: {
+    padding: "10px 12px",
+    borderRadius: "8px",
+    border: "1px solid #262b36",
+    background: "transparent",
+    color: "#9aa3b2",
+    cursor: "pointer",
   },
   error: {
     margin: 0,

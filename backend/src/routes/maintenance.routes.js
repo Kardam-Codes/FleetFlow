@@ -3,11 +3,15 @@ const express = require("express");
 const router = express.Router();
 
 const maintenanceController = require("../controllers/maintenance.controller");
+const { protect } = require("../middlewares/auth.middleware");
+const { authorize } = require("../middlewares/role.middleware");
 
 
 // Create Maintenance Log
 router.post(
     "/",
+    protect,
+    authorize("manager"),
     maintenanceController.createMaintenanceLog
 );
 
@@ -15,6 +19,7 @@ router.post(
 // Get All Maintenance Logs
 router.get(
     "/",
+    protect,
     maintenanceController.getAllMaintenanceLogs
 );
 
@@ -22,6 +27,7 @@ router.get(
 // Get Logs By Vehicle
 router.get(
     "/vehicle/:vehicleId",
+    protect,
     maintenanceController.getMaintenanceLogsByVehicle
 );
 
@@ -29,6 +35,8 @@ router.get(
 // Complete Maintenance (Vehicle becomes AVAILABLE)
 router.patch(
     "/vehicle/:vehicleId/complete",
+    protect,
+    authorize("manager"),
     maintenanceController.completeMaintenance
 );
 
@@ -36,6 +44,8 @@ router.patch(
 // Delete Maintenance Log
 router.delete(
     "/:id",
+    protect,
+    authorize("manager"),
     maintenanceController.deleteMaintenanceLog
 );
 

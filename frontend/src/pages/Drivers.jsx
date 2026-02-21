@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from "react";
 import DataTable from "../components/common/DataTable";
 import StatusPill from "../components/common/StatusPill";
-import { getDrivers } from "../api/driver.api";
+import { driverApi } from "../api/driver.api";
+
+const defaultForm = {
+  name: "",
+  license_number: "",
+  license_expiry: "",
+};
 
 const Drivers = () => {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [form, setForm] = useState(defaultForm);
 
   useEffect(() => {
     fetchDrivers();
@@ -13,15 +21,42 @@ const Drivers = () => {
 
   const fetchDrivers = async () => {
     try {
-      const res = await getDrivers();
+      setLoading(true);
+      const res = await driverApi.getAll();
       if (res.success) {
         setDrivers(res.data?.data || []);
+      } else {
+        setError(res.message || "Failed to fetch drivers");
       }
     } catch (err) {
-      console.error(err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCreate = async (event) => {
+    event.preventDefault();
+    setError("");
+
+    const res = await driverApi.create(form);
+    if (!res.success) {
+      setError(res.message || "Failed to create driver");
+      return;
+    }
+
+    setForm(defaultForm);
+    await fetchDrivers();
+  };
+
+  const handleStatus = async (driverId, status) => {
+    const res = await driverApi.setStatus(driverId, status);
+    if (!res.success) {
+      setError(res.message || "Failed to update status");
+      return;
+    }
+
+    await fetchDrivers();
   };
 
   const isExpiringSoon = (date) => {
@@ -33,7 +68,7 @@ const Drivers = () => {
 
   const columns = [
     { key: "name", label: "Driver Name" },
-    { key: "license_type", label: "License Type" },
+    { key: "license_number", label: "License Number" },
     {
       key: "license_expiry",
       label: "License Expiry",
@@ -54,20 +89,59 @@ const Drivers = () => {
       render: (value) => <StatusPill status={value} />,
     },
     { key: "safety_score", label: "Safety Score" },
-    { key: "completion_rate", label: "Completion %" },
   ];
+
+  const renderActions = (row) => (
+    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+      <button style={actionBtn} onClick={() => handleStatus(row.id, "ON_DUTY")}>On Duty</button>
+      <button style={actionBtn} onClick={() => handleStatus(row.id, "OFF_DUTY")}>Off Duty</button>
+      <button style={actionBtn} onClick={() => handleStatus(row.id, "SUSPENDED")}>Suspend</button>
+    </div>
+  );
 
   return (
     <div>
       <h2 style={{ marginBottom: "20px" }}>Driver Performance & Compliance</h2>
 
-      <DataTable
-        columns={columns}
-        data={drivers}
-        loading={loading}
-      />
+      <form onSubmit={handleCreate} className="ff-form-grid">
+        <input
+          className="ff-field"
+          required
+          placeholder="Driver Name"
+          value={form.name}
+          onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+        />
+        <input
+          className="ff-field"
+          required
+          placeholder="License Number"
+          value={form.license_number}
+          onChange={(event) => setForm((prev) => ({ ...prev, license_number: event.target.value }))}
+        />
+        <input
+          className="ff-field"
+          required
+          type="date"
+          value={form.license_expiry}
+          onChange={(event) => setForm((prev) => ({ ...prev, license_expiry: event.target.value }))}
+        />
+        <button type="submit" className="ff-btn-primary">Add Driver</button>
+      </form>
+
+      {error ? <p style={{ color: "#ef4444" }}>{error}</p> : null}
+
+      <DataTable columns={columns} data={drivers} loading={loading} renderActions={renderActions} />
     </div>
   );
+};
+
+const actionBtn = {
+  padding: "6px 10px",
+  borderRadius: "6px",
+  border: "1px solid #262b36",
+  background: "transparent",
+  color: "#9aa3b2",
+  cursor: "pointer",
 };
 
 export default Drivers;

@@ -14,6 +14,26 @@ const statusMap = {
     bg: "rgba(245,158,11,0.15)",
     color: theme.colors.warning,
   },
+  retired: {
+    bg: "rgba(107,114,128,0.15)",
+    color: theme.colors.textMuted,
+  },
+  draft: {
+    bg: "rgba(107,114,128,0.15)",
+    color: theme.colors.textMuted,
+  },
+  dispatched: {
+    bg: theme.colors.accentSoft,
+    color: theme.colors.accent,
+  },
+  on_duty: {
+    bg: "rgba(34,197,94,0.15)",
+    color: theme.colors.success,
+  },
+  off_duty: {
+    bg: "rgba(107,114,128,0.15)",
+    color: theme.colors.textMuted,
+  },
   suspended: {
     bg: "rgba(239,68,68,0.15)",
     color: theme.colors.error,

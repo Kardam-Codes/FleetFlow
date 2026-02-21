@@ -8,10 +8,10 @@ const {
 
 // Allowed state transitions
 const allowedTransitions = {
-  available: ["on_trip", "in_shop", "retired"],
-  on_trip: ["available"],
-  in_shop: ["available"],
-  retired: [],
+  AVAILABLE: ["ON_TRIP", "IN_SHOP", "RETIRED"],
+  ON_TRIP: ["AVAILABLE"],
+  IN_SHOP: ["AVAILABLE"],
+  RETIRED: [],
 };
 
 // Create vehicle
@@ -39,17 +39,18 @@ const changeVehicleStatusService = async (id, newStatus) => {
     throw error;
   }
 
-  const currentStatus = vehicle.status;
+  const currentStatus = String(vehicle.status || "").toUpperCase();
+  const nextStatus = String(newStatus || "").toUpperCase();
 
-  if (!allowedTransitions[currentStatus].includes(newStatus)) {
+  if (!allowedTransitions[currentStatus] || !allowedTransitions[currentStatus].includes(nextStatus)) {
     const error = new Error(
-      `Invalid status transition from ${currentStatus} to ${newStatus}`
+      `Invalid status transition from ${currentStatus} to ${nextStatus}`
     );
     error.statusCode = 400;
     throw error;
   }
 
-  return await updateVehicleStatus(id, newStatus);
+  return await updateVehicleStatus(id, nextStatus);
 };
 
 // Update vehicle basic details

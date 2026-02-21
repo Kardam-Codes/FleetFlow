@@ -11,20 +11,20 @@ import { api } from "./api"
 export const tripApi = {
   getAll: () => api.get("/trips"),
 
-  getById: (id) =>
-    api.get(`/trips/${id}`),
-
   create: (data) =>
     api.post("/trips", data),
 
   dispatch: (id) =>
-    api.put(`/trips/${id}/dispatch`),
+    api.patch(`/trips/${id}/dispatch`),
 
   complete: (id, completionData) =>
-    api.put(`/trips/${id}/complete`, completionData),
+    api.patch(`/trips/${id}/complete`, completionData),
 
   cancel: (id) =>
-    api.put(`/trips/${id}/cancel`),
+    api.patch(`/trips/${id}/cancel`),
+
+  remove: (id) =>
+    api.delete(`/trips/${id}`),
 }
 
 export const getTrips = () => tripApi.getAll()

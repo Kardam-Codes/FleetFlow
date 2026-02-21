@@ -1,0 +1,98 @@
+.ff-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.ff-sidebar {
+  width: 240px;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ff-main-shell {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ff-main-content {
+  flex: 1;
+  padding: 32px;
+}
+
+.ff-navbar {
+  min-height: 64px;
+}
+
+.ff-content-wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.ff-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.ff-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.ff-field {
+  width: 100%;
+  min-height: 40px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #262b36;
+  background: #1c1f2a;
+  color: #e6e8ec;
+}
+
+.ff-btn-primary {
+  min-height: 40px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  background: #3b82f6;
+  color: #fff;
+  cursor: pointer;
+}
+
+.ff-btn-muted {
+  min-height: 34px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #262b36;
+  background: transparent;
+  color: #9aa3b2;
+  cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+  .ff-layout {
+    flex-direction: column;
+  }
+
+  .ff-sidebar {
+    width: 100%;
+    min-width: 100%;
+    border-right: none !important;
+    border-bottom: 1px solid #262b36;
+  }
+
+  .ff-main-content {
+    padding: 20px 14px;
+  }
+
+  .ff-navbar {
+    min-height: 84px;
+    padding: 10px 14px !important;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+}

@@ -86,51 +86,53 @@ const DataTable = ({ columns, data, loading, renderActions }) => {
 
   return (
     <div style={containerStyle}>
-      <table style={tableStyle}>
-        <thead>
-          <tr>
-            {columns.map((col) => (
-              <th key={col.key} style={headerCellStyle}>
-                {col.label}
-              </th>
-            ))}
-            {renderActions && (
-              <th style={headerCellStyle}>Actions</th>
-            )}
-          </tr>
-        </thead>
-
-        <tbody>
-          {data.map((row, index) => (
-            <tr
-              key={index}
-              style={{ transition: "background 0.2s ease" }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background =
-                  theme.colors.accentSoft)
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background =
-                  "transparent")
-              }
-            >
+      <div className="ff-table-scroll">
+        <table style={tableStyle}>
+          <thead>
+            <tr>
               {columns.map((col) => (
-                <td key={col.key} style={cellStyle}>
-                  {col.render
-                    ? col.render(row[col.key], row)
-                    : row[col.key]}
-                </td>
+                <th key={col.key} style={headerCellStyle}>
+                  {col.label}
+                </th>
               ))}
-
               {renderActions && (
-                <td style={cellStyle}>
-                  {renderActions(row)}
-                </td>
+                <th style={headerCellStyle}>Actions</th>
               )}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {data.map((row, index) => (
+              <tr
+                key={index}
+                style={{ transition: "background 0.2s ease" }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background =
+                    theme.colors.accentSoft)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background =
+                    "transparent")
+                }
+              >
+                {columns.map((col) => (
+                  <td key={col.key} style={cellStyle}>
+                    {col.render
+                      ? col.render(row[col.key], row)
+                      : row[col.key]}
+                  </td>
+                ))}
+
+                {renderActions && (
+                  <td style={cellStyle}>
+                    {renderActions(row)}
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

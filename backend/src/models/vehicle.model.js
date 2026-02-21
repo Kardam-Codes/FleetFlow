@@ -5,31 +5,45 @@ const createVehicle = async (
   name,
   licensePlate,
   maxCapacity,
-  acquisitionCost
+  acquisitionCost,
+  odometer = 0
 ) => {
   const query = `
-    INSERT INTO vehicles (name, license_plate, max_capacity, acquisition_cost)
+    INSERT INTO vehicles (license_plate, max_capacity, acquisition_cost, odometer)
     VALUES ($1, $2, $3, $4)
-    RETURNING *
+    RETURNING id, license_plate, max_capacity, acquisition_cost, odometer, status, created_at
   `;
 
-  const values = [name, licensePlate, maxCapacity, acquisitionCost];
+  const values = [licensePlate, maxCapacity, acquisitionCost, odometer];
 
   const result = await pool.query(query, values);
 
-  return result.rows[0];
+  return {
+    ...result.rows[0],
+    name: name || result.rows[0].license_plate,
+  };
 };
 
 // Get all vehicles
 const getAllVehicles = async () => {
-  const result = await pool.query(`SELECT * FROM vehicles ORDER BY created_at DESC`);
+  const result = await pool.query(`
+    SELECT id, license_plate, max_capacity, acquisition_cost, odometer, status, created_at,
+           license_plate AS name
+    FROM vehicles
+    ORDER BY created_at DESC
+  `);
   return result.rows;
 };
 
 // Get vehicle by ID
 const getVehicleById = async (id) => {
   const result = await pool.query(
-    `SELECT * FROM vehicles WHERE id = $1`,
+    `
+    SELECT id, license_plate, max_capacity, acquisition_cost, odometer, status, created_at,
+           license_plate AS name
+    FROM vehicles
+    WHERE id = $1
+    `,
     [id]
   );
 
@@ -42,7 +56,7 @@ const updateVehicleStatus = async (id, status) => {
     `UPDATE vehicles
      SET status = $1
      WHERE id = $2
-     RETURNING *`,
+     RETURNING id, license_plate, max_capacity, acquisition_cost, odometer, status, created_at`,
     [status, id]
   );
 
@@ -58,15 +72,17 @@ const updateVehicleDetails = async (
 ) => {
   const result = await pool.query(
     `UPDATE vehicles
-     SET name = $1,
-         max_capacity = $2,
-         acquisition_cost = $3
-     WHERE id = $4
-     RETURNING *`,
-    [name, maxCapacity, acquisitionCost, id]
+     SET max_capacity = $1,
+         acquisition_cost = $2
+     WHERE id = $3
+     RETURNING id, license_plate, max_capacity, acquisition_cost, odometer, status, created_at`,
+    [maxCapacity, acquisitionCost, id]
   );
 
-  return result.rows[0];
+  return {
+    ...result.rows[0],
+    name: name || result.rows[0]?.license_plate,
+  };
 };
 
 module.exports = {

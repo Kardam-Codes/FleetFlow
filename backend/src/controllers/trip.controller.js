@@ -121,11 +121,32 @@ const deleteTrip = async (req, res, next) => {
 };
 
 
+// Cancel Trip
+const cancelTrip = async (req, res, next) => {
+    try {
+
+        const { id } = req.params;
+
+        const trip = await tripService.cancelTrip(id);
+
+        res.status(200).json({
+            success: true,
+            message: "Trip cancelled successfully",
+            data: trip
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 
 module.exports = {
     createTrip,
     getAllTrips,
     dispatchTrip,
     completeTrip,
+    cancelTrip,
     deleteTrip
 };

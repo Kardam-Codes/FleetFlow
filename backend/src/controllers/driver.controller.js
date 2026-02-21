@@ -66,7 +66,7 @@ const updateDriverStatus = async (req, res, next) => {
 
         const { id } = req.params;
 
-        const { status } = req.body;
+        const status = String(req.body.status || "").toUpperCase();
 
         const driver = await driverService.updateDriverStatus(
             id,

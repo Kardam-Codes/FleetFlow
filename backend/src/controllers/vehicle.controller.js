@@ -7,7 +7,10 @@ const {
 
 const createVehicle = async (req, res, next) => {
   try {
-    const { name, licensePlate, maxCapacity, acquisitionCost } = req.body;
+    const name = req.body.name;
+    const licensePlate = req.body.licensePlate ?? req.body.license_plate;
+    const maxCapacity = req.body.maxCapacity ?? req.body.max_capacity;
+    const acquisitionCost = req.body.acquisitionCost ?? req.body.acquisition_cost;
 
     const vehicle = await createVehicleService(
       name,
@@ -57,7 +60,9 @@ const changeVehicleStatus = async (req, res, next) => {
 const updateVehicleDetails = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, maxCapacity, acquisitionCost } = req.body;
+    const name = req.body.name;
+    const maxCapacity = req.body.maxCapacity ?? req.body.max_capacity;
+    const acquisitionCost = req.body.acquisitionCost ?? req.body.acquisition_cost;
 
     const vehicle = await updateVehicleDetailsService(
       id,

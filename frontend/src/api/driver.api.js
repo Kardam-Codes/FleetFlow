@@ -18,10 +18,16 @@ export const driverApi = {
     api.post("/drivers", data),
 
   update: (id, data) =>
-    api.put(`/drivers/${id}`, data),
+    api.patch(`/drivers/${id}/status`, data),
 
   suspend: (id) =>
-    api.put(`/drivers/${id}/suspend`),
+    api.patch(`/drivers/${id}/status`, { status: "SUSPENDED" }),
+
+  setStatus: (id, status) =>
+    api.patch(`/drivers/${id}/status`, { status }),
+
+  remove: (id) =>
+    api.delete(`/drivers/${id}`),
 }
 
 export const getDrivers = () => driverApi.getAll()
