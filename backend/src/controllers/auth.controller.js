@@ -1,11 +1,6 @@
-// backend/src/controllers/auth.controller.js
+const { registerUserService, loginUserService } = require("../services/auth.service");
 
-import {
-  registerUserService,
-  loginUserService,
-} from "../services/auth.service.js";
-
-export const registerUser = async (req, res, next) => {
+const registerUser = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
 
@@ -20,7 +15,7 @@ export const registerUser = async (req, res, next) => {
   }
 };
 
-export const loginUser = async (req, res, next) => {
+const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -33,4 +28,9 @@ export const loginUser = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
 };

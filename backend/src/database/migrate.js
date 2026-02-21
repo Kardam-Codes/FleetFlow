@@ -1,18 +1,10 @@
-// src/database/migrate.js
+const fs = require("fs");
+const path = require("path");
+const pool = require("./db");
 
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import pool from "./db.js";
-
-// Fix __dirname for ES Modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Go to backend/migrations
 const migrationsPath = path.join(__dirname, "../../migrations");
 
-export const runMigrations = async () => {
+const runMigrations = async () => {
   try {
     if (!fs.existsSync(migrationsPath)) {
       console.log("No migrations folder found. Skipping migrations.");
@@ -35,3 +27,5 @@ export const runMigrations = async () => {
     console.error("Migration error:", error);
   }
 };
+
+module.exports = { runMigrations };

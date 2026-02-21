@@ -1,10 +1,10 @@
-import {
+const {
   createVehicle,
   getAllVehicles,
   getVehicleById,
   updateVehicleStatus,
   updateVehicleDetails,
-} from "../models/vehicle.model.js";
+} = require("../models/vehicle.model");
 
 // Allowed state transitions
 const allowedTransitions = {
@@ -15,7 +15,7 @@ const allowedTransitions = {
 };
 
 // Create vehicle
-export const createVehicleService = async (
+const createVehicleService = async (
   name,
   licensePlate,
   maxCapacity,
@@ -25,12 +25,12 @@ export const createVehicleService = async (
 };
 
 // Get all vehicles
-export const getAllVehiclesService = async () => {
+const getAllVehiclesService = async () => {
   return await getAllVehicles();
 };
 
 // Change vehicle status (with state validation)
-export const changeVehicleStatusService = async (id, newStatus) => {
+const changeVehicleStatusService = async (id, newStatus) => {
   const vehicle = await getVehicleById(id);
 
   if (!vehicle) {
@@ -53,7 +53,7 @@ export const changeVehicleStatusService = async (id, newStatus) => {
 };
 
 // Update vehicle basic details
-export const updateVehicleDetailsService = async (
+const updateVehicleDetailsService = async (
   id,
   name,
   maxCapacity,
@@ -68,4 +68,11 @@ export const updateVehicleDetailsService = async (
   }
 
   return await updateVehicleDetails(id, name, maxCapacity, acquisitionCost);
+};
+
+module.exports = {
+  createVehicleService,
+  getAllVehiclesService,
+  changeVehicleStatusService,
+  updateVehicleDetailsService,
 };

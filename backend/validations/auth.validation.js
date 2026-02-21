@@ -1,6 +1,4 @@
-// backend/src/validations/auth.validation.js
-
-export const validateRegister = (req, res, next) => {
+const validateRegister = (req, res, next) => {
   const { name, email, password, role } = req.body;
 
   if (!name || name.length < 3) {
@@ -41,7 +39,7 @@ export const validateRegister = (req, res, next) => {
   next();
 };
 
-export const validateLogin = (req, res, next) => {
+const validateLogin = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -52,4 +50,9 @@ export const validateLogin = (req, res, next) => {
   }
 
   next();
+};
+
+module.exports = {
+  validateRegister,
+  validateLogin,
 };

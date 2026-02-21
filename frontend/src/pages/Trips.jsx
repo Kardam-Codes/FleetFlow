@@ -14,7 +14,9 @@ const Trips = () => {
   const fetchTrips = async () => {
     try {
       const res = await getTrips();
-      setTrips(res.data);
+      if (res.success) {
+        setTrips(res.data?.data || []);
+      }
     } catch (err) {
       console.error(err);
     } finally {

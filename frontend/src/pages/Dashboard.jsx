@@ -19,7 +19,9 @@ const Dashboard = () => {
   const fetchOverview = async () => {
     try {
       const res = await getAnalyticsOverview();
-      setStats(res.data);
+      if (res.success) {
+        setStats(res.data?.data || stats);
+      }
     } catch (err) {
       console.error(err);
     } finally {

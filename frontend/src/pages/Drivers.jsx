@@ -14,7 +14,9 @@ const Drivers = () => {
   const fetchDrivers = async () => {
     try {
       const res = await getDrivers();
-      setDrivers(res.data);
+      if (res.success) {
+        setDrivers(res.data?.data || []);
+      }
     } catch (err) {
       console.error(err);
     } finally {

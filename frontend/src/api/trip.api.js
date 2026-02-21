@@ -26,3 +26,5 @@ export const tripApi = {
   cancel: (id) =>
     api.put(`/trips/${id}/cancel`),
 }
+
+export const getTrips = () => tripApi.getAll()

@@ -23,3 +23,5 @@ export const vehicleApi = {
   remove: (id) =>
     api.delete(`/vehicles/${id}`),
 }
+
+export const getVehicles = () => vehicleApi.getAll()

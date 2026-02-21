@@ -21,3 +21,5 @@ export const analyticsApi = {
   getCostPerKm: () =>
     api.get("/analytics/cost-per-km"),
 }
+
+export const getAnalyticsOverview = () => analyticsApi.getDashboardStats()

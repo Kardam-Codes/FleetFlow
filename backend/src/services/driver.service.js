@@ -3,7 +3,7 @@ const driverModel = require("../models/driver.model");
 const {
     validateDriverCreate,
     validateDriverStatusUpdate
-} = require("../validations/driver.validation");
+} = require("../../validations/driver.validation");
 
 
 // Create Driver

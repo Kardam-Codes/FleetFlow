@@ -4,7 +4,7 @@ const db = require("../database/db");
 const {
     validateTripCreate,
     validateTripComplete
-} = require("../validations/trip.validation");
+} = require("../../validations/trip.validation");
 
 
 // Create Trip

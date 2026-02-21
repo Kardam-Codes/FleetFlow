@@ -1,12 +1,6 @@
-// backend/src/database/db.js
-
-// src/database/db.js
-
-import pkg from "pg";
-import { dbConfig } from "../config/db.config.js";
-
-const { Pool } = pkg;
+const { Pool } = require("pg");
+const { dbConfig } = require("../config/db.config");
 
 const pool = new Pool(dbConfig);
 
-export default pool;
+module.exports = pool;

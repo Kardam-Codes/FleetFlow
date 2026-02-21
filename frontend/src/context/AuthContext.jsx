@@ -49,7 +49,9 @@ export function AuthProvider({ children }) {
   }
 
   function getDefaultRoute(role) {
-    switch (role) {
+    const normalizedRole = String(role || "").toUpperCase()
+
+    switch (normalizedRole) {
       case "FLEET_MANAGER":
         return "/dashboard"
       case "DISPATCHER":

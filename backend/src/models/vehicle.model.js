@@ -1,9 +1,7 @@
-// backend/src/models/vehicle.model.js
-
-import  pool  from "../database/db.js";
+const pool = require("../database/db");
 
 // Create vehicle
-export const createVehicle = async (
+const createVehicle = async (
   name,
   licensePlate,
   maxCapacity,
@@ -23,13 +21,13 @@ export const createVehicle = async (
 };
 
 // Get all vehicles
-export const getAllVehicles = async () => {
+const getAllVehicles = async () => {
   const result = await pool.query(`SELECT * FROM vehicles ORDER BY created_at DESC`);
   return result.rows;
 };
 
 // Get vehicle by ID
-export const getVehicleById = async (id) => {
+const getVehicleById = async (id) => {
   const result = await pool.query(
     `SELECT * FROM vehicles WHERE id = $1`,
     [id]
@@ -39,7 +37,7 @@ export const getVehicleById = async (id) => {
 };
 
 // Update vehicle status
-export const updateVehicleStatus = async (id, status) => {
+const updateVehicleStatus = async (id, status) => {
   const result = await pool.query(
     `UPDATE vehicles
      SET status = $1
@@ -52,7 +50,7 @@ export const updateVehicleStatus = async (id, status) => {
 };
 
 // Update vehicle basic details
-export const updateVehicleDetails = async (
+const updateVehicleDetails = async (
   id,
   name,
   maxCapacity,
@@ -69,4 +67,12 @@ export const updateVehicleDetails = async (
   );
 
   return result.rows[0];
+};
+
+module.exports = {
+  createVehicle,
+  getAllVehicles,
+  getVehicleById,
+  updateVehicleStatus,
+  updateVehicleDetails,
 };

@@ -3,6 +3,7 @@ import DataTable from "../components/common/DataTable";
 import StatusPill from "../components/common/StatusPill";
 import { getVehicles } from "../api/vehicle.api"; // assuming this exists
 import PageHeader from "../components/common/PageHeader";
+import { theme } from "../constants/themes";
 
 const Vehicles = () => {
     const [vehicles, setVehicles] = useState([]);
@@ -15,7 +16,9 @@ const Vehicles = () => {
     const fetchVehicles = async () => {
         try {
             const response = await getVehicles();
-            setVehicles(response.data);
+            if (response.success) {
+                setVehicles(response.data?.data || []);
+            }
         } catch (error) {
             console.error("Error fetching vehicles:", error);
         } finally {

@@ -1,13 +1,11 @@
-// backend/src/controllers/vehicle.controller.js
-
-import {
+const {
   createVehicleService,
   getAllVehiclesService,
   changeVehicleStatusService,
   updateVehicleDetailsService,
-} from "../services/vehicle.service.js";
+} = require("../services/vehicle.service");
 
-export const createVehicle = async (req, res, next) => {
+const createVehicle = async (req, res, next) => {
   try {
     const { name, licensePlate, maxCapacity, acquisitionCost } = req.body;
 
@@ -27,7 +25,7 @@ export const createVehicle = async (req, res, next) => {
   }
 };
 
-export const getVehicles = async (req, res, next) => {
+const getVehicles = async (req, res, next) => {
   try {
     const vehicles = await getAllVehiclesService();
 
@@ -40,7 +38,7 @@ export const getVehicles = async (req, res, next) => {
   }
 };
 
-export const changeVehicleStatus = async (req, res, next) => {
+const changeVehicleStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -56,7 +54,7 @@ export const changeVehicleStatus = async (req, res, next) => {
   }
 };
 
-export const updateVehicleDetails = async (req, res, next) => {
+const updateVehicleDetails = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { name, maxCapacity, acquisitionCost } = req.body;
@@ -75,4 +73,11 @@ export const updateVehicleDetails = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+module.exports = {
+  createVehicle,
+  getVehicles,
+  changeVehicleStatus,
+  updateVehicleDetails,
 };

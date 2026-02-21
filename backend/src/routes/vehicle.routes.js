@@ -1,47 +1,25 @@
-// backend/src/routes/vehicle.routes.js
-
-import express from "express";
-import {
+const express = require("express");
+const {
   createVehicle,
   getVehicles,
   changeVehicleStatus,
   updateVehicleDetails,
-} from "../controllers/vehicle.controller.js";
-
-import { protect } from "../middlewares/auth.middleware.js";
-import { authorize } from "../middlewares/role.middleware.js";
-
-import {
+} = require("../controllers/vehicle.controller");
+const { protect } = require("../middlewares/auth.middleware");
+const { authorize } = require("../middlewares/role.middleware");
+const {
   validateCreateVehicle,
   validateVehicleStatus,
-} from "../validations/vehicle.validation.js";
+} = require("../../validations/vehicle.validation");
 
 const router = express.Router();
 
-router.post(
-  "/",
-  protect,
-  authorize("manager"),
-  validateCreateVehicle,
-  createVehicle
-);
+router.post("/", protect, authorize("manager"), validateCreateVehicle, createVehicle);
 
 router.get("/", protect, getVehicles);
 
-router.patch(
-  "/:id/status",
-  protect,
-  authorize("manager"),
-  validateVehicleStatus,
-  changeVehicleStatus
-);
+router.patch("/:id/status", protect, authorize("manager"), validateVehicleStatus, changeVehicleStatus);
 
-router.patch(
-  "/:id",
-  protect,
-  authorize("manager"),
-  validateCreateVehicle,
-  updateVehicleDetails
-);
+router.patch("/:id", protect, authorize("manager"), validateCreateVehicle, updateVehicleDetails);
 
-export default router;
+module.exports = router;

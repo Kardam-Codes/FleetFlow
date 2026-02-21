@@ -1,6 +1,4 @@
-// backend/src/validations/vehicle.validation.js
-
-export const validateCreateVehicle = (req, res, next) => {
+const validateCreateVehicle = (req, res, next) => {
   const { name, licensePlate, maxCapacity, acquisitionCost } = req.body;
 
   if (!name || name.length < 2) {
@@ -34,7 +32,7 @@ export const validateCreateVehicle = (req, res, next) => {
   next();
 };
 
-export const validateVehicleStatus = (req, res, next) => {
+const validateVehicleStatus = (req, res, next) => {
   const { status } = req.body;
 
   const allowedStatuses = ["available", "on_trip", "in_shop", "retired"];
@@ -47,4 +45,9 @@ export const validateVehicleStatus = (req, res, next) => {
   }
 
   next();
+};
+
+module.exports = {
+  validateCreateVehicle,
+  validateVehicleStatus,
 };

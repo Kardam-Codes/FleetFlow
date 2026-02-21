@@ -11,6 +11,8 @@ const tripRoutes = require("./routes/trip.routes");
 const maintenanceRoutes = require("./routes/maintenance.routes");
 const fuelRoutes = require("./routes/fuel.routes");
 const analyticsRoutes = require("./routes/analytics.routes");
+const authRoutes = require("./routes/auth.routes");
+const vehicleRoutes = require("./routes/vehicle.routes");
 
 
 // ==============================

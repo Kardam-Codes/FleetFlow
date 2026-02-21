@@ -34,10 +34,10 @@ export default function Analytics() {
         return
       }
 
-      setStats(dashboard.data)
-      setFuelData(fuel.data || [])
-      setRoiData(roi.data || [])
-      setCostData(cost.data || [])
+      setStats(dashboard.data?.data || {})
+      setFuelData(fuel.data?.data || [])
+      setRoiData(roi.data?.data || [])
+      setCostData(cost.data?.data || [])
       setLoading(false)
     }
 

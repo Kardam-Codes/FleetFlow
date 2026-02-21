@@ -1,9 +1,7 @@
-// backend/src/models/user.model.js
-
-import  pool  from "../database/db.js";
+const pool = require("../database/db");
 
 // Create new user
-export const createUser = async (name, email, hashedPassword, role) => {
+const createUser = async (name, email, hashedPassword, role) => {
   const query = `
     INSERT INTO users (name, email, password, role)
     VALUES ($1, $2, $3, $4)
@@ -18,7 +16,7 @@ export const createUser = async (name, email, hashedPassword, role) => {
 };
 
 // Find user by email
-export const findUserByEmail = async (email) => {
+const findUserByEmail = async (email) => {
   const query = `
     SELECT * FROM users
     WHERE email = $1
@@ -30,7 +28,7 @@ export const findUserByEmail = async (email) => {
 };
 
 // Find user by ID
-export const findUserById = async (id) => {
+const findUserById = async (id) => {
   const query = `
     SELECT id, name, email, role, created_at
     FROM users
@@ -40,4 +38,10 @@ export const findUserById = async (id) => {
   const result = await pool.query(query, [id]);
 
   return result.rows[0];
+};
+
+module.exports = {
+  createUser,
+  findUserByEmail,
+  findUserById,
 };

@@ -23,3 +23,5 @@ export const driverApi = {
   suspend: (id) =>
     api.put(`/drivers/${id}/suspend`),
 }
+
+export const getDrivers = () => driverApi.getAll()

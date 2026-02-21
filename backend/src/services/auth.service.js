@@ -1,12 +1,10 @@
-// backend/src/services/auth.service.js
-
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { ENV } from "../config/env.js";
-import { createUser, findUserByEmail } from "../models/user.model.js";
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { ENV } = require("../config/env");
+const { createUser, findUserByEmail } = require("../models/user.model");
 
 // Register new user
-export const registerUserService = async (name, email, password, role) => {
+const registerUserService = async (name, email, password, role) => {
   // Check if user already exists
   const existingUser = await findUserByEmail(email);
   if (existingUser) {
@@ -25,7 +23,7 @@ export const registerUserService = async (name, email, password, role) => {
 };
 
 // Login user
-export const loginUserService = async (email, password) => {
+const loginUserService = async (email, password) => {
   const user = await findUserByEmail(email);
 
   if (!user) {
@@ -58,4 +56,9 @@ export const loginUserService = async (email, password) => {
       role: user.role,
     },
   };
+};
+
+module.exports = {
+  registerUserService,
+  loginUserService,
 };

@@ -1,7 +1,5 @@
-// src/middlewares/role.middleware.js
-
 // Middleware to allow only specific roles
-export const authorize = (...allowedRoles) => {
+const authorize = (...allowedRoles) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({
@@ -18,3 +16,5 @@ export const authorize = (...allowedRoles) => {
     next();
   };
 };
+
+module.exports = { authorize };
