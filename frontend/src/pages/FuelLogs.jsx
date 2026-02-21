@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import DataTable from "../components/common/DataTable"
 import { fuelApi } from "../api/fuel.api"
 import { tripApi } from "../api/trip.api"
+import { USE_MOCK_DATA, mockFuelLogs, mockTrips } from "../mock/demoData"
 
 const defaultForm = {
   trip_id: "",
@@ -27,6 +28,11 @@ export default function FuelLogs() {
   }
 
   async function fetchFuelLogs() {
+    if (USE_MOCK_DATA) {
+      setRows(mockFuelLogs)
+      return
+    }
+
     const response = await fuelApi.getAll()
     if (!response.success) {
       setError(response.message)
@@ -37,6 +43,12 @@ export default function FuelLogs() {
   }
 
   async function fetchTrips() {
+    if (USE_MOCK_DATA) {
+      const validTrips = mockTrips.filter((trip) => ["DISPATCHED", "COMPLETED"].includes(trip.status))
+      setTrips(validTrips)
+      return
+    }
+
     const response = await tripApi.getAll()
     if (!response.success) return
 
@@ -47,6 +59,28 @@ export default function FuelLogs() {
   async function handleCreate(event) {
     event.preventDefault()
     setError("")
+
+    if (USE_MOCK_DATA) {
+      const selectedTrip = trips.find((trip) => trip.id === form.trip_id)
+      if (!selectedTrip) {
+        setError("Select a valid trip")
+        return
+      }
+
+      setRows((prev) => [
+        {
+          id: `fuel-${Date.now()}`,
+          trip_id: form.trip_id,
+          vehicle_id: selectedTrip.vehicle_name,
+          liters: Number(form.liters),
+          cost: Number(form.cost),
+          fuel_date: new Date().toISOString().slice(0, 10),
+        },
+        ...prev,
+      ])
+      setForm(defaultForm)
+      return
+    }
 
     const response = await fuelApi.create({
       ...form,
@@ -72,8 +106,11 @@ export default function FuelLogs() {
   ]
 
   return (
-    <div>
-      <h2>Fuel Logs</h2>
+    <div className="ff-page">
+      <div>
+        <h2 className="ff-page-title">Completed Trip, Expense & Fuel Logging</h2>
+        <p className="ff-page-subtitle">Track liters, cost, and fuel records against active/completed trips.</p>
+      </div>
 
       <form onSubmit={handleCreate} className="ff-form-grid">
         <select
@@ -108,7 +145,7 @@ export default function FuelLogs() {
         <button type="submit" className="ff-btn-primary">Add Fuel Entry</button>
       </form>
 
-      {error ? <p style={{ color: "#ef4444" }}>{error}</p> : null}
+      {error ? <p className="ff-error">{error}</p> : null}
 
       <DataTable columns={columns} data={rows} loading={loading} />
     </div>

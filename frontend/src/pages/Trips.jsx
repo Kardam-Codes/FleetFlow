@@ -4,6 +4,7 @@ import StatusPill from "../components/common/StatusPill";
 import { tripApi } from "../api/trip.api";
 import { vehicleApi } from "../api/vehicle.api";
 import { driverApi } from "../api/driver.api";
+import { USE_MOCK_DATA, mockDrivers, mockTrips, mockVehicles } from "../mock/demoData";
 
 const defaultForm = {
   vehicle_id: "",
@@ -31,6 +32,11 @@ const Trips = () => {
   };
 
   const fetchTrips = async () => {
+    if (USE_MOCK_DATA) {
+      setTrips(mockTrips);
+      return;
+    }
+
     const res = await tripApi.getAll();
     if (res.success) {
       setTrips(res.data?.data || []);
@@ -41,6 +47,11 @@ const Trips = () => {
   };
 
   const fetchVehicles = async () => {
+    if (USE_MOCK_DATA) {
+      setVehicles(mockVehicles.filter((item) => item.status === "AVAILABLE"));
+      return;
+    }
+
     const res = await vehicleApi.getAll();
     if (res.success) {
       setVehicles((res.data?.data || []).filter((item) => item.status === "AVAILABLE"));
@@ -48,6 +59,11 @@ const Trips = () => {
   };
 
   const fetchDrivers = async () => {
+    if (USE_MOCK_DATA) {
+      setDrivers(mockDrivers.filter((item) => item.status === "ON_DUTY"));
+      return;
+    }
+
     const res = await driverApi.getAll();
     if (res.success) {
       setDrivers((res.data?.data || []).filter((item) => item.status === "ON_DUTY"));
@@ -57,6 +73,35 @@ const Trips = () => {
   const handleCreate = async (event) => {
     event.preventDefault();
     setError("");
+
+    if (USE_MOCK_DATA) {
+      const selectedVehicle = vehicles.find((item) => item.id === form.vehicle_id);
+      const selectedDriver = drivers.find((item) => item.id === form.driver_id);
+
+      if (!selectedVehicle || !selectedDriver) {
+        setError("Select valid vehicle and driver");
+        return;
+      }
+
+      if (Number(form.cargo_weight) > Number(selectedVehicle.max_capacity)) {
+        setError("Cargo weight exceeds vehicle capacity");
+        return;
+      }
+
+      const draftTrip = {
+        id: `trip-${Date.now()}`,
+        vehicle_id: selectedVehicle.id,
+        vehicle_name: selectedVehicle.license_plate,
+        driver_id: selectedDriver.id,
+        driver_name: selectedDriver.name,
+        cargo_weight: Number(form.cargo_weight),
+        status: "DRAFT",
+      };
+
+      setTrips((prev) => [draftTrip, ...prev]);
+      setForm(defaultForm);
+      return;
+    }
 
     const response = await tripApi.create({
       ...form,
@@ -74,6 +119,13 @@ const Trips = () => {
   };
 
   const handleDispatch = async (tripId) => {
+    if (USE_MOCK_DATA) {
+      setTrips((prev) => prev.map((trip) => (
+        trip.id === tripId ? { ...trip, status: "DISPATCHED" } : trip
+      )));
+      return;
+    }
+
     const response = await tripApi.dispatch(tripId);
     if (!response.success) {
       setError(response.message || "Dispatch failed");
@@ -84,6 +136,13 @@ const Trips = () => {
   };
 
   const handleCancel = async (tripId) => {
+    if (USE_MOCK_DATA) {
+      setTrips((prev) => prev.map((trip) => (
+        trip.id === tripId ? { ...trip, status: "CANCELLED" } : trip
+      )));
+      return;
+    }
+
     const response = await tripApi.cancel(tripId);
     if (!response.success) {
       setError(response.message || "Cancel failed");
@@ -94,6 +153,13 @@ const Trips = () => {
   };
 
   const handleComplete = async (tripId) => {
+    if (USE_MOCK_DATA) {
+      setTrips((prev) => prev.map((trip) => (
+        trip.id === tripId ? { ...trip, status: "COMPLETED" } : trip
+      )));
+      return;
+    }
+
     const endOdometer = window.prompt("End odometer:");
     const revenue = window.prompt("Revenue:");
 
@@ -143,8 +209,11 @@ const Trips = () => {
   };
 
   return (
-    <div>
-      <h2 style={{ marginBottom: "20px" }}>Trip Dispatcher & Management</h2>
+    <div className="ff-page">
+      <div>
+        <h2 className="ff-page-title">Trip Dispatcher & Management</h2>
+        <p className="ff-page-subtitle">Draft, dispatch, complete, and cancel trips with role-safe validations.</p>
+      </div>
 
       <form onSubmit={handleCreate} className="ff-form-grid">
         <select
@@ -196,7 +265,7 @@ const Trips = () => {
         <button type="submit" className="ff-btn-primary">Create Draft Trip</button>
       </form>
 
-      {error ? <p style={{ color: "#ef4444" }}>{error}</p> : null}
+      {error ? <p className="ff-error">{error}</p> : null}
 
       <DataTable
         columns={columns}

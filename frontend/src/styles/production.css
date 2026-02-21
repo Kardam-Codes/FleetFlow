@@ -73,6 +73,39 @@
   cursor: pointer;
 }
 
+.ff-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ff-page-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #e6e8ec;
+  letter-spacing: 0.2px;
+}
+
+.ff-page-subtitle {
+  margin: 4px 0 0;
+  color: #9aa3b2;
+  font-size: 14px;
+}
+
+.ff-panel {
+  background: #151821;
+  border: 1px solid #262b36;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.ff-error {
+  margin: 0;
+  color: #ef4444;
+  font-size: 13px;
+}
+
 @media (max-width: 1024px) {
   .ff-layout {
     flex-direction: column;
@@ -94,5 +127,9 @@
     padding: 10px 14px !important;
     gap: 10px;
     flex-wrap: wrap;
+  }
+
+  .ff-page-title {
+    font-size: 22px;
   }
 }

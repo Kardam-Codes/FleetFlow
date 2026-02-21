@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import DataTable from "../components/common/DataTable"
 import { maintenanceApi } from "../api/maintenance.api"
 import { vehicleApi } from "../api/vehicle.api"
+import { USE_MOCK_DATA, mockMaintenance, mockVehicles } from "../mock/demoData"
 
 const defaultForm = {
   vehicle_id: "",
@@ -27,6 +28,11 @@ export default function Maintenance() {
   }
 
   async function fetchMaintenance() {
+    if (USE_MOCK_DATA) {
+      setRows(mockMaintenance)
+      return
+    }
+
     const response = await maintenanceApi.getAll()
     if (!response.success) {
       setError(response.message)
@@ -37,6 +43,11 @@ export default function Maintenance() {
   }
 
   async function fetchVehicles() {
+    if (USE_MOCK_DATA) {
+      setVehicles(mockVehicles.filter((vehicle) => vehicle.status !== "IN_SHOP"))
+      return
+    }
+
     const response = await vehicleApi.getAll()
     if (!response.success) return
 
@@ -46,6 +57,28 @@ export default function Maintenance() {
   async function handleCreate(event) {
     event.preventDefault()
     setError("")
+
+    if (USE_MOCK_DATA) {
+      const selectedVehicle = mockVehicles.find((vehicle) => vehicle.id === form.vehicle_id)
+      if (!selectedVehicle) {
+        setError("Select a valid vehicle")
+        return
+      }
+
+      setRows((prev) => [
+        {
+          id: `mnt-${Date.now()}`,
+          vehicle_id: form.vehicle_id,
+          license_plate: selectedVehicle.license_plate,
+          description: form.description,
+          cost: Number(form.cost || 0),
+          service_date: new Date().toISOString().slice(0, 10),
+        },
+        ...prev,
+      ])
+      setForm(defaultForm)
+      return
+    }
 
     const response = await maintenanceApi.create({
       ...form,
@@ -62,6 +95,11 @@ export default function Maintenance() {
   }
 
   async function handleComplete(vehicleId) {
+    if (USE_MOCK_DATA) {
+      setRows((prev) => prev.filter((row) => row.vehicle_id !== vehicleId))
+      return
+    }
+
     const response = await maintenanceApi.complete(vehicleId)
     if (!response.success) {
       setError(response.message || "Failed to complete maintenance")
@@ -79,8 +117,11 @@ export default function Maintenance() {
   ]
 
   return (
-    <div>
-      <h2>Maintenance Logs</h2>
+    <div className="ff-page">
+      <div>
+        <h2 className="ff-page-title">Maintenance & Service Logs</h2>
+        <p className="ff-page-subtitle">Create service logs and keep dispatch pool conflict-free.</p>
+      </div>
 
       <form onSubmit={handleCreate} className="ff-form-grid">
         <select
@@ -113,7 +154,7 @@ export default function Maintenance() {
         <button type="submit" className="ff-btn-primary">Add Service Log</button>
       </form>
 
-      {error ? <p style={{ color: "#ef4444" }}>{error}</p> : null}
+      {error ? <p className="ff-error">{error}</p> : null}
 
       <DataTable
         columns={columns}

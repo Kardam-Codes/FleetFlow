@@ -11,6 +11,13 @@ import {
   Tooltip,
 } from "recharts"
 import { theme } from "../constants/theme"
+import {
+  USE_MOCK_DATA,
+  mockCostPerKm,
+  mockDashboardStats,
+  mockFuelEfficiency,
+  mockROI,
+} from "../mock/demoData"
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api"
 
@@ -26,6 +33,15 @@ export default function Analytics() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true)
+
+      if (USE_MOCK_DATA) {
+        setStats(mockDashboardStats)
+        setFuelData(mockFuelEfficiency.map((item) => ({ label: item.license_plate, value: item.fuel_efficiency })))
+        setRoiData(mockROI.map((item) => ({ label: item.license_plate, value: Number((item.roi * 100).toFixed(2)) })))
+        setCostData(mockCostPerKm.map((item) => ({ label: item.license_plate, value: item.cost_per_km })))
+        setLoading(false)
+        return
+      }
 
       const dashboard = await analyticsApi.getDashboardStats()
       const fuel = await analyticsApi.getFuelEfficiency()
@@ -64,6 +80,29 @@ export default function Analytics() {
   }, [])
 
   async function exportCsv(path, filename) {
+    if (USE_MOCK_DATA) {
+      const rows = [
+        ["vehicle", "fuel_efficiency", "roi_percent", "cost_per_km"],
+        ...fuelData.map((row, index) => [
+          row.label,
+          row.value,
+          roiData[index]?.value ?? 0,
+          costData[index]?.value ?? 0,
+        ]),
+      ]
+      const csv = rows.map((line) => line.join(",")).join("\n")
+      const blob = new Blob([csv], { type: "text/csv" })
+      const href = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = href
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      URL.revokeObjectURL(href)
+      return
+    }
+
     const token = localStorage.getItem("token")
     const url = `${API_BASE_URL}${path}?month=${month}`
 
@@ -100,8 +139,11 @@ export default function Analytics() {
   const COLORS = ["#3b82f6", "#e5e7eb"]
 
   return (
-    <div style={styles.container}>
-      <h2>Operational Analytics</h2>
+    <div className="ff-page" style={styles.container}>
+      <div>
+        <h2 className="ff-page-title">Operational Analytics & Financial Reports</h2>
+        <p className="ff-page-subtitle">Showcase fuel efficiency, ROI, cost per km, and downloadable reporting.</p>
+      </div>
 
       <div style={styles.exportBar}>
         <input

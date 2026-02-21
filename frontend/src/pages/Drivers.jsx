@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import DataTable from "../components/common/DataTable";
 import StatusPill from "../components/common/StatusPill";
 import { driverApi } from "../api/driver.api";
+import { USE_MOCK_DATA, mockDrivers } from "../mock/demoData";
 
 const defaultForm = {
   name: "",
@@ -22,6 +23,10 @@ const Drivers = () => {
   const fetchDrivers = async () => {
     try {
       setLoading(true);
+      if (USE_MOCK_DATA) {
+        setDrivers(mockDrivers);
+        return;
+      }
       const res = await driverApi.getAll();
       if (res.success) {
         setDrivers(res.data?.data || []);
@@ -39,6 +44,20 @@ const Drivers = () => {
     event.preventDefault();
     setError("");
 
+    if (USE_MOCK_DATA) {
+      setDrivers((prev) => [
+        {
+          id: `drv-${Date.now()}`,
+          ...form,
+          status: "ON_DUTY",
+          safety_score: 100,
+        },
+        ...prev,
+      ]);
+      setForm(defaultForm);
+      return;
+    }
+
     const res = await driverApi.create(form);
     if (!res.success) {
       setError(res.message || "Failed to create driver");
@@ -50,6 +69,13 @@ const Drivers = () => {
   };
 
   const handleStatus = async (driverId, status) => {
+    if (USE_MOCK_DATA) {
+      setDrivers((prev) => prev.map((driver) => (
+        driver.id === driverId ? { ...driver, status } : driver
+      )));
+      return;
+    }
+
     const res = await driverApi.setStatus(driverId, status);
     if (!res.success) {
       setError(res.message || "Failed to update status");
@@ -100,8 +126,11 @@ const Drivers = () => {
   );
 
   return (
-    <div>
-      <h2 style={{ marginBottom: "20px" }}>Driver Performance & Compliance</h2>
+    <div className="ff-page">
+      <div>
+        <h2 className="ff-page-title">Driver Performance & Safety Profiles</h2>
+        <p className="ff-page-subtitle">Track licenses, safety score, and duty status in one place.</p>
+      </div>
 
       <form onSubmit={handleCreate} className="ff-form-grid">
         <input
@@ -128,7 +157,7 @@ const Drivers = () => {
         <button type="submit" className="ff-btn-primary">Add Driver</button>
       </form>
 
-      {error ? <p style={{ color: "#ef4444" }}>{error}</p> : null}
+      {error ? <p className="ff-error">{error}</p> : null}
 
       <DataTable columns={columns} data={drivers} loading={loading} renderActions={renderActions} />
     </div>

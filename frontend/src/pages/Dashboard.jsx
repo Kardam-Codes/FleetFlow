@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import KPIWidget from "../components/common/KPIWidget";
 import { getAnalyticsOverview } from "../api/analytics.api";
+import { USE_MOCK_DATA, mockDashboardStats } from "../mock/demoData";
 
 const Dashboard = () => {
   const [filters, setFilters] = useState({
@@ -25,6 +26,10 @@ const Dashboard = () => {
   const fetchOverview = async () => {
     try {
       setLoading(true);
+      if (USE_MOCK_DATA) {
+        setStats(mockDashboardStats);
+        return;
+      }
       const res = await getAnalyticsOverview(filters);
       if (res.success) {
         setStats(res.data?.data || stats);
@@ -37,10 +42,13 @@ const Dashboard = () => {
   };
 
   return (
-    <div style={{ animation: "fadeIn 0.6s ease-in-out" }}>
-      <h1 style={{ marginBottom: "16px" }}>Command Center</h1>
+    <div className="ff-page" style={{ animation: "fadeIn 0.6s ease-in-out" }}>
+      <div>
+        <h1 className="ff-page-title">Command Center</h1>
+        <p className="ff-page-subtitle">Live operations summary across fleet, dispatch, and finance.</p>
+      </div>
 
-      <div style={{ display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap" }}>
+      <div className="ff-panel" style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
         <select value={filters.status} onChange={(e) => setFilters((prev) => ({ ...prev, status: e.target.value }))} style={filterStyle}>
           <option value="">All Statuses</option>
           <option value="AVAILABLE">Available</option>

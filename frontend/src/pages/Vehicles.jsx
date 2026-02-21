@@ -4,6 +4,7 @@ import StatusPill from "../components/common/StatusPill";
 import { vehicleApi } from "../api/vehicle.api";
 import PageHeader from "../components/common/PageHeader";
 import { theme } from "../constants/themes";
+import { USE_MOCK_DATA, mockVehicles } from "../mock/demoData";
 
 const defaultForm = {
   name: "",
@@ -26,6 +27,13 @@ const Vehicles = () => {
   const fetchVehicles = async () => {
     try {
       setLoading(true);
+      if (USE_MOCK_DATA) {
+        setVehicles(mockVehicles.map((item) => ({
+          ...item,
+          name: item.name || item.license_plate,
+        })));
+        return;
+      }
       const response = await vehicleApi.getAll();
       if (response.success) {
         const rows = response.data?.data || [];
@@ -47,6 +55,22 @@ const Vehicles = () => {
     event.preventDefault();
     setError("");
 
+    if (USE_MOCK_DATA) {
+      const row = {
+        id: `veh-${Date.now()}`,
+        name: form.name || form.licensePlate,
+        license_plate: form.licensePlate,
+        max_capacity: Number(form.maxCapacity),
+        acquisition_cost: Number(form.acquisitionCost || 0),
+        odometer: 0,
+        status: "AVAILABLE",
+      };
+      setVehicles((prev) => [row, ...prev]);
+      setForm(defaultForm);
+      setShowForm(false);
+      return;
+    }
+
     const response = await vehicleApi.create({
       name: form.name || form.licensePlate,
       licensePlate: form.licensePlate,
@@ -65,6 +89,13 @@ const Vehicles = () => {
   };
 
   const handleRetire = async (vehicleId) => {
+    if (USE_MOCK_DATA) {
+      setVehicles((prev) => prev.map((item) => (
+        item.id === vehicleId ? { ...item, status: "RETIRED" } : item
+      )));
+      return;
+    }
+
     const response = await vehicleApi.changeStatus(vehicleId, "RETIRED");
     if (!response.success) {
       setError(response.message || "Failed to update status");
@@ -104,7 +135,7 @@ const Vehicles = () => {
   );
 
   return (
-    <div>
+    <div className="ff-page">
       <PageHeader
         title="Vehicle Registry"
         subtitle="Manage fleet assets and availability"
@@ -161,7 +192,7 @@ const Vehicles = () => {
         </form>
       ) : null}
 
-      {error ? <p style={{ color: "#ef4444" }}>{error}</p> : null}
+      {error ? <p className="ff-error">{error}</p> : null}
 
       <DataTable
         columns={columns}
