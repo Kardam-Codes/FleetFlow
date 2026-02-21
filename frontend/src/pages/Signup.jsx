@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 
 export default function Signup() {
@@ -11,6 +11,7 @@ export default function Signup() {
     email: "",
     password: "",
     confirmPassword: "",
+    role: "manager",
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -30,6 +31,7 @@ export default function Signup() {
       name: form.name,
       email: form.email,
       password: form.password,
+      role: form.role,
     })
 
     if (!result?.success) {
@@ -94,11 +96,31 @@ export default function Signup() {
           style={styles.input}
         />
 
+        <label style={styles.label} htmlFor="role">Role</label>
+        <select
+          id="role"
+          value={form.role}
+          onChange={(event) =>
+            setForm((prev) => ({ ...prev, role: event.target.value }))
+          }
+          required
+          style={styles.input}
+        >
+          <option value="manager">Fleet Manager</option>
+          <option value="dispatcher">Dispatcher</option>
+          <option value="safety_officer">Safety Officer</option>
+          <option value="financial_analyst">Financial Analyst</option>
+        </select>
+
         {error ? <p style={styles.error}>{error}</p> : null}
 
         <button type="submit" disabled={loading} style={styles.button}>
           {loading ? "Creating account..." : "Sign Up"}
         </button>
+
+        <p style={styles.metaText}>
+          Already have an account? <Link to="/login" style={styles.link}>Sign in</Link>
+        </p>
       </form>
     </div>
   )
@@ -150,5 +172,14 @@ const styles = {
     margin: 0,
     color: "#ef4444",
     fontSize: "13px",
+  },
+  metaText: {
+    margin: "8px 0 0",
+    fontSize: "13px",
+    color: "#9aa3b2",
+  },
+  link: {
+    color: "#60a5fa",
+    textDecoration: "none",
   },
 }

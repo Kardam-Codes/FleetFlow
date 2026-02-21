@@ -9,10 +9,20 @@ import { useAuth } from "../context/AuthContext"
  * - Role-based access restriction
  */
 
+function normalizeRole(role) {
+  const normalizedRole = String(role || "").toUpperCase()
+
+  if (normalizedRole === "MANAGER") {
+    return "FLEET_MANAGER"
+  }
+
+  return normalizedRole
+}
+
 export default function ProtectedRoute({ children, allowedRoles = [] }) {
   const { isAuthenticated, user, loading } = useAuth()
-  const normalizedRole = String(user?.role || "").toUpperCase()
-  const normalizedAllowedRoles = allowedRoles.map((role) => String(role).toUpperCase())
+  const normalizedRole = normalizeRole(user?.role)
+  const normalizedAllowedRoles = allowedRoles.map((role) => normalizeRole(role))
 
   if (loading) {
     return <p>Checking authentication...</p>

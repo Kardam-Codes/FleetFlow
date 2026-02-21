@@ -3,6 +3,16 @@ import { authApi } from "../api/auth.api"
 
 const AuthContext = createContext()
 
+function normalizeRole(role) {
+  const normalizedRole = String(role || "").toUpperCase()
+
+  if (normalizedRole === "MANAGER") {
+    return "FLEET_MANAGER"
+  }
+
+  return normalizedRole
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [token, setToken] = useState(null)
@@ -41,6 +51,19 @@ export function AuthProvider({ children }) {
     }
   }
 
+  async function signup(userData) {
+    const response = await authApi.register(userData)
+
+    if (!response.success) {
+      return response
+    }
+
+    return login({
+      email: userData.email,
+      password: userData.password,
+    })
+  }
+
   function logout() {
     localStorage.removeItem("token")
     localStorage.removeItem("user")
@@ -49,7 +72,7 @@ export function AuthProvider({ children }) {
   }
 
   function getDefaultRoute(role) {
-    const normalizedRole = String(role || "").toUpperCase()
+    const normalizedRole = normalizeRole(role)
 
     switch (normalizedRole) {
       case "FLEET_MANAGER":
@@ -71,6 +94,7 @@ export function AuthProvider({ children }) {
     loading,
     isAuthenticated: !!token,
     login,
+    signup,
     logout,
     getDefaultRoute,
   }

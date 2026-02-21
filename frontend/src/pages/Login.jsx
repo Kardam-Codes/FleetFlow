@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 
 export default function Login() {
@@ -56,6 +56,10 @@ export default function Login() {
         <button type="submit" disabled={loading} style={styles.button}>
           {loading ? "Signing in..." : "Sign In"}
         </button>
+
+        <p style={styles.metaText}>
+          New to FleetFlow? <Link to="/signup" style={styles.link}>Create account</Link>
+        </p>
       </form>
     </div>
   )
@@ -107,5 +111,14 @@ const styles = {
     margin: 0,
     color: "#ef4444",
     fontSize: "13px",
+  },
+  metaText: {
+    margin: "8px 0 0",
+    fontSize: "13px",
+    color: "#9aa3b2",
+  },
+  link: {
+    color: "#60a5fa",
+    textDecoration: "none",
   },
 }
