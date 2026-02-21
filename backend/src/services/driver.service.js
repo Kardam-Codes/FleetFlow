@@ -1,25 +1,24 @@
 const driverModel = require("../models/driver.model");
 
-
-// Create Driver Service
-const createDriver = async (data) => {
-
-    const { name, license_number, license_expiry } = data;
-
-
-    // Basic validation
-    if (!name || !license_number || !license_expiry) {
-        throw new Error("All fields are required");
-    }
+const {
+    validateDriverCreate,
+    validateDriverStatusUpdate
+} = require("../validations/driver.validation");
 
 
-    // License expiry validation
-    const today = new Date();
-    const expiryDate = new Date(license_expiry);
+// Create Driver
+const createDriver = async ({
+    name,
+    license_number,
+    license_expiry
+}) => {
 
-    if (expiryDate < today) {
-        throw new Error("Cannot create driver with expired license");
-    }
+    // VALIDATION
+    validateDriverCreate({
+        name,
+        license_number,
+        license_expiry
+    });
 
 
     // Create driver in database
@@ -29,7 +28,6 @@ const createDriver = async (data) => {
         license_expiry
     });
 
-
     return driver;
 };
 
@@ -38,9 +36,7 @@ const createDriver = async (data) => {
 // Get All Drivers
 const getAllDrivers = async () => {
 
-    const drivers = await driverModel.getAllDrivers();
-
-    return drivers;
+    return await driverModel.getAllDrivers();
 };
 
 
@@ -64,46 +60,19 @@ const getDriverById = async (driverId) => {
 
 
 // Update Driver Status
-const updateDriverStatus = async (driverId, status) => {
+const updateDriverStatus = async ({
+    driverId,
+    status
+}) => {
 
-    const validStatuses = [
-        "ON_DUTY",
-        "OFF_DUTY",
-        "SUSPENDED"
-    ];
-
-
-    if (!validStatuses.includes(status)) {
-        throw new Error("Invalid driver status");
+    if (!driverId) {
+        throw new Error("Driver ID is required");
     }
 
 
-    const driver = await driverModel.updateDriverStatus(
-        driverId,
-        status
-    );
+    // VALIDATION
+    validateDriverStatusUpdate(status);
 
-    return driver;
-};
-
-
-
-// Delete Driver
-const deleteDriver = async (driverId) => {
-
-    const driver = await driverModel.deleteDriver(driverId);
-
-    if (!driver) {
-        throw new Error("Driver not found");
-    }
-
-    return driver;
-};
-
-
-
-// Check Driver Availability (IMPORTANT for Trips)
-const checkDriverAvailability = async (driverId) => {
 
     const driver = await driverModel.getDriverById(driverId);
 
@@ -112,22 +81,32 @@ const checkDriverAvailability = async (driverId) => {
     }
 
 
-    // Check status
-    if (driver.status !== "ON_DUTY") {
-        throw new Error("Driver is not available");
+    const updatedDriver =
+        await driverModel.updateDriverStatus({
+            driverId,
+            status
+        });
+
+
+    return updatedDriver;
+};
+
+
+
+// Delete Driver
+const deleteDriver = async (driverId) => {
+
+    if (!driverId) {
+        throw new Error("Driver ID is required");
     }
 
+    const driver = await driverModel.getDriverById(driverId);
 
-    // Check license expiry
-    const today = new Date();
-    const expiryDate = new Date(driver.license_expiry);
-
-    if (expiryDate < today) {
-        throw new Error("Driver license expired");
+    if (!driver) {
+        throw new Error("Driver not found");
     }
 
-
-    return true;
+    return await driverModel.deleteDriver(driverId);
 };
 
 
@@ -137,6 +116,5 @@ module.exports = {
     getAllDrivers,
     getDriverById,
     updateDriverStatus,
-    deleteDriver,
-    checkDriverAvailability
+    deleteDriver
 };
