@@ -1,0 +1,20 @@
+# FleetFlow State Machine
+
+## Vehicle States
+AVAILABLE → ON_TRIP
+AVAILABLE → IN_SHOP
+ON_TRIP → AVAILABLE
+IN_SHOP → AVAILABLE
+AVAILABLE → RETIRED
+
+## Driver States
+ON_DUTY → ON_TRIP
+ON_TRIP → ON_DUTY
+ON_DUTY → SUSPENDED
+
+## Trip States
+DRAFT → DISPATCHED
+DISPATCHED → COMPLETED
+DISPATCHED → CANCELLED
+
+All transitions are validated in the Service Layer.
