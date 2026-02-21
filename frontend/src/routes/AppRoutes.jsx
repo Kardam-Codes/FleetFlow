@@ -1,113 +1,85 @@
-import { Routes, Route, Navigate } from "react-router-dom"
-import ProtectedRoute from "./ProtectedRoute"
+import { createContext, useContext, useEffect, useState } from "react"
+import { authApi } from "../api/auth.api"
 
-// Public Page
-import Login from "../pages/Login"
+const AuthContext = createContext()
 
-// Jay's Pages
-import Dashboard from "../pages/Dashboard"
-import Vehicles from "../pages/Vehicles"
-import Drivers from "../pages/Drivers"
-import Trips from "../pages/Trips"
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null)
+  const [token, setToken] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-// Kardam's Pages
-import Maintenance from "../pages/Maintenance"
-import FuelLogs from "../pages/FuelLogs"
-import Analytics from "../pages/Analytics"
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token")
+    const storedUser = localStorage.getItem("user")
 
-// Layout (Assuming Jay created a Layout wrapper)
-import Layout from "../components/layout/Layout"
+    if (storedToken && storedUser) {
+      setToken(storedToken)
+      setUser(JSON.parse(storedUser))
+    }
 
-export default function AppRoutes() {
+    setLoading(false)
+  }, [])
+
+  async function login(credentials) {
+    const response = await authApi.login(credentials)
+
+    if (!response.success) {
+      return response
+    }
+
+    const { token, user } = response.data
+
+    localStorage.setItem("token", token)
+    localStorage.setItem("user", JSON.stringify(user))
+
+    setToken(token)
+    setUser(user)
+
+    return {
+      success: true,
+      redirectTo: getDefaultRoute(user.role),
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem("token")
+    localStorage.removeItem("user")
+    setToken(null)
+    setUser(null)
+  }
+
+  function getDefaultRoute(role) {
+    switch (role) {
+      case "FLEET_MANAGER":
+        return "/dashboard"
+      case "DISPATCHER":
+        return "/trips"
+      case "SAFETY_OFFICER":
+        return "/drivers"
+      case "FINANCIAL_ANALYST":
+        return "/analytics"
+      default:
+        return "/dashboard"
+    }
+  }
+
+  const value = {
+    user,
+    token,
+    loading,
+    isAuthenticated: !!token,
+    login,
+    logout,
+    getDefaultRoute,
+  }
+
   return (
-    <Routes>
-      {/* ===================== */}
-      {/* Public Route */}
-      {/* ===================== */}
-      <Route path="/login" element={<Login />} />
-
-      {/* ===================== */}
-      {/* Protected Routes */}
-      {/* ===================== */}
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Dashboard />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/vehicles"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Vehicles />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/drivers"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Drivers />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/trips"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Trips />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/maintenance"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Maintenance />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/fuel"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <FuelLogs />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/analytics"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Analytics />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Default Redirect */}
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
   )
+}
+
+export function useAuth() {
+  return useContext(AuthContext)
 }

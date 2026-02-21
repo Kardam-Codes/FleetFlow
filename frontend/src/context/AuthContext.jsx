@@ -1,11 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { authApi } from "../api/auth.api"
 
-/**
- * AuthContext
- * Central authentication state manager
- */
-
 const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
@@ -13,9 +8,6 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  /**
-   * Load auth state from localStorage on app start
-   */
   useEffect(() => {
     const storedToken = localStorage.getItem("token")
     const storedUser = localStorage.getItem("user")
@@ -28,9 +20,6 @@ export function AuthProvider({ children }) {
     setLoading(false)
   }, [])
 
-  /**
-   * Login function
-   */
   async function login(credentials) {
     const response = await authApi.login(credentials)
 
@@ -40,25 +29,38 @@ export function AuthProvider({ children }) {
 
     const { token, user } = response.data
 
-    // Persist
     localStorage.setItem("token", token)
     localStorage.setItem("user", JSON.stringify(user))
 
     setToken(token)
     setUser(user)
 
-    return { success: true }
+    return {
+      success: true,
+      redirectTo: getDefaultRoute(user.role),
+    }
   }
 
-  /**
-   * Logout function
-   */
   function logout() {
     localStorage.removeItem("token")
     localStorage.removeItem("user")
-
     setToken(null)
     setUser(null)
+  }
+
+  function getDefaultRoute(role) {
+    switch (role) {
+      case "FLEET_MANAGER":
+        return "/dashboard"
+      case "DISPATCHER":
+        return "/trips"
+      case "SAFETY_OFFICER":
+        return "/drivers"
+      case "FINANCIAL_ANALYST":
+        return "/analytics"
+      default:
+        return "/dashboard"
+    }
   }
 
   const value = {
@@ -68,6 +70,7 @@ export function AuthProvider({ children }) {
     isAuthenticated: !!token,
     login,
     logout,
+    getDefaultRoute,
   }
 
   return (
@@ -77,9 +80,6 @@ export function AuthProvider({ children }) {
   )
 }
 
-/**
- * Custom hook
- */
 export function useAuth() {
   return useContext(AuthContext)
 }
